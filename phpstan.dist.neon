@@ -6,6 +6,9 @@ parameters:
     paths:
         - UiBundle.php
         - DependencyInjection
+        - DataTable
+        - Form
+        - Ui
         - Tests
         - rector.php
     treatPhpDocTypesAsCertain: false

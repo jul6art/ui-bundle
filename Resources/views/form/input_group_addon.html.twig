@@ -1,0 +1,63 @@
+{#
+    The widget every `Custom*Type` in this bundle renders through.
+
+    ⚠️ The markup is Tailwind-flavoured, and deliberately so — a form theme *is* markup, and a
+    bundle shipping one has to pick a vocabulary. A project on another CSS framework registers its
+    own theme AFTER this one and redeclares `input_group_addon_widget`; Symfony resolves the last
+    definition, so nothing here needs changing.
+
+    Two front-end pieces are the project's to provide, and both fail silently when absent:
+      - `form--password` — the Stimulus controller that makes the reveal button do something.
+        Without it the button renders and clicking it does nothing.
+      - `form--decimal` — attached by CustomMoneyType / CustomUnitType. Without it the field is a
+        plain number input: no thousands separators, no keystroke filtering.
+
+    `|raw` on the add-ons is intentional: they are markup, coming from `ui.icons` — the
+    application's own configuration, at the same trust level as this template. Values derived from
+    data (a currency code, a unit) are escaped in the form type, at the source, before they get
+    here.
+#}
+{% block input_group_addon_widget %}
+    {% set inputType = 'text' %}
+
+    {% if 'password' in form.vars.block_prefixes %}
+        {% set inputType = 'password' %}
+        {% set attr = attr|merge({'data-form--password-target': 'input', class: (attr.class|default('') ~ ' form-password')|trim})%}
+    {% elseif 'email' in form.vars.block_prefixes %}
+        {% set inputType = 'email' %}
+    {% endif %}
+
+    <div class="relative w-full"{{ inputType == 'password' ? ' data-controller="form--password"' : '' }}>
+
+        {% if left_addon is defined and left_addon is not empty %}
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+                {% if left_type == 'button' %}
+                    <button type="button" class="text-gray-500 hover:text-gray-700"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}>
+                        {{ left_addon|raw }}
+                    </button>
+                {% else %}
+                    <span class="text-gray-400">
+                        {{ left_addon|raw }}
+                    </span>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <input type="{{ inputType }}" {{ block('widget_attributes') }} {% if form.vars.value is not empty %}value="{{ form.vars.value }}"{% endif %}/>
+
+        {% if right_addon is defined and right_addon is not empty %}
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                {% if right_type == 'button' %}
+                    <button type="button" class="text-gray-500 hover:text-gray-700"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}>
+                        {{ right_addon|raw }}
+                    </button>
+                {% else %}
+                    <span class="text-gray-400">
+                        {{ right_addon|raw }}
+                    </span>
+                {% endif %}
+            </div>
+        {% endif %}
+
+    </div>
+{% endblock %}

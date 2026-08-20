@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jul6Art\UiBundle\DependencyInjection;
 
+use Jul6Art\UiBundle\DataTable\AdminDataTableConfig;
+use Jul6Art\UiBundle\Ui\IconSet;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -40,5 +42,46 @@ class UiExtension extends Extension
         // Exposed as a container parameter so an application can branch on it, and so
         // `debug:container --parameter` tells the truth about what is active.
         $container->setParameter('ui.enabled', true);
+
+        // Les icônes atteignent les types de formulaire par le service `IconSet` et non par un
+        // paramètre lu au vol : un type qui lirait `%ui.icons%` obligerait chaque projet à
+        // déclarer le paramètre, y compris ceux qui gardent le jeu par défaut.
+        // Fusion et non remplacement : un nœud prototype rend *uniquement* ce que le projet a
+        // écrit, donc déclarer `ui.icons.email` effacerait les onze autres icônes — un formulaire
+        // sur deux perdrait son add-on, sans erreur et sans trace. Le défaut du nœud sert à
+        // `config:dump-reference` ; c'est ici que la table complète est reconstituée.
+        $container->getDefinition(IconSet::class)
+            ->setArgument('$icons', [...IconSet::FONT_AWESOME_ICONS, ...self::stringMap($config['icons'] ?? [])])
+            ->setArgument('$currencyIcons', [...IconSet::FONT_AWESOME_CURRENCIES, ...self::stringMap($config['currency_icons'] ?? [])]);
+
+        $datatable = \is_array($config['datatable'] ?? null) ? $config['datatable'] : [];
+        $container->getDefinition(AdminDataTableConfig::class)
+            ->setArgument('$tenantEndpoint', self::asString($datatable['tenant_endpoint'] ?? null, '/api/organizations'))
+            ->setArgument('$tenantLabelKey', self::asString($datatable['tenant_label_key'] ?? null, 'datatable.col.organization'))
+            ->setArgument('$tenantLabelDomain', self::asString($datatable['tenant_label_domain'] ?? null, 'messages'));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function stringMap(mixed $value): array
+    {
+        if (!\is_array($value)) {
+            return [];
+        }
+
+        $map = [];
+        foreach ($value as $key => $markup) {
+            if (\is_string($key) && \is_string($markup)) {
+                $map[$key] = $markup;
+            }
+        }
+
+        return $map;
+    }
+
+    private static function asString(mixed $value, string $fallback): string
+    {
+        return \is_string($value) && '' !== $value ? $value : $fallback;
     }
 }

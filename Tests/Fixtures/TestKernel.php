@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Jul6Art\UiBundle\Tests\Fixtures;
 
+use Jul6Art\UiBundle\DataTable\AdminDataTableConfig;
+use Jul6Art\UiBundle\Ui\IconSet;
 use Jul6Art\UiBundle\UiBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
+use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -49,6 +52,11 @@ final class TestKernel extends Kernel
     public function registerBundles(): iterable
     {
         yield new FrameworkBundle();
+
+        // Twig est chargé pour de vrai : la moitié de ce bundle est un thème de formulaire, et un
+        // thème ne se prouve qu'en rendant. Un test qui n'assemble que des `view.vars` passe
+        // pendant qu'une balise mal fermée casse tous les formulaires du projet.
+        yield new TwigBundle();
 
         yield new UiBundle();
     }
@@ -101,7 +109,10 @@ final class TestKernel extends Kernel
                     'event_dispatcher',
                     'request_stack',
                     'security.token_storage',
-                    // Add the bundle's own services here as the tests need them.
+                    'twig',
+                    'form.factory',
+                    IconSet::class,
+                    AdminDataTableConfig::class,
                 ];
 
                 foreach ($container->getDefinitions() as $id => $definition) {
@@ -131,6 +142,19 @@ final class TestKernel extends Kernel
             'http_method_override' => false,
             'handle_all_throwables' => true,
             'php_errors' => ['log' => true],
+            'form' => true,
+            'csrf_protection' => false,
+            'validation' => ['enabled' => false],
+            'default_locale' => 'en',
+            'translator' => ['fallbacks' => ['en']],
+        ]);
+
+        $container->loadFromExtension('twig', [
+            'strict_variables' => true,
+            // Le thème du bundle est enregistré comme un projet le ferait : par son chemin de
+            // namespace Twig. Si ce chemin change, tous les rendus tombent ici et non chez un
+            // consommateur.
+            'form_themes' => ['@Ui/form/input_group_addon.html.twig'],
         ]);
 
         $container->loadFromExtension('ui', $this->bundleConfig);

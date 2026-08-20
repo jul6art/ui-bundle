@@ -15,7 +15,10 @@
         "php": "^8.5",
         "symfony/config": "^7.4 || ^8.0",
         "symfony/dependency-injection": "^7.4 || ^8.0",
+        "symfony/form": "^7.4 || ^8.0",
         "symfony/http-kernel": "^7.4 || ^8.0",
+        "symfony/options-resolver": "^7.4 || ^8.0",
+        "symfony/translation-contracts": "^3.4",
         "symfony/yaml": "^7.4 || ^8.0"
     },
     "require-dev": {
@@ -27,11 +30,11 @@
         "phpunit/phpunit": "^13.0",
         "rector/rector": "^2.0",
         "symfony/flex": "^2.4",
-        "symfony/form": "^8.1",
         "symfony/framework-bundle": "^7.4 || ^8.0",
         "symfony/phpunit-bridge": "^7.4 || ^8.0",
-        "symfony/twig-bundle": "^8.1",
-        "symfony/validator": "^8.1",
+        "symfony/translation": "^7.4 || ^8.0",
+        "symfony/twig-bundle": "^7.4 || ^8.0",
+        "symfony/validator": "^7.4 || ^8.0",
         "symfony/var-dumper": "^7.4 || ^8.0",
         "twig/twig": "^3.28"
     },
@@ -72,6 +75,14 @@
             "@rector-check",
             "@phpstan",
             "@test"
-        ]
+        ],
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+        }
+    },
+    "suggest": {
+        "twig/twig": "Pour le thème de formulaire fourni (Resources/views/form) : sans Twig, les types rendent le widget par défaut de Symfony.",
+        "symfony/stimulus-bundle": "Les contrôleurs `form--password` et `form--decimal` attendus par le thème restent à la charge du projet : ce bundle n'impose ni AssetMapper ni Encore."
     }
 }

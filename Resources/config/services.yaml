@@ -4,3 +4,26 @@ services:
     # Anything conditional — a brick that needs an optional package, or a service the
     # application may not have — is registered from the extension or removed by a compiler
     # pass instead. Cf. DependencyInjection/UiExtension.php.
+
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # Le jeu d'icônes : ses deux tables sont posées par l'extension depuis la configuration.
+    Jul6Art\UiBundle\Ui\IconSet:
+        arguments:
+            $icons: []
+            $currencyIcons: []
+
+    # Les types de formulaire. `autoconfigure` leur pose le tag `form.type`, ce qui les rend
+    # utilisables par leur FQCN sans que le projet déclare quoi que ce soit.
+    Jul6Art\UiBundle\Form\Type\:
+        resource: '../../Form/Type/'
+
+    # Le socle des fournisseurs de configuration de datatable est abstrait : il n'est pas un
+    # service, ce sont ses sous-classes côté projet qui en sont.
+    Jul6Art\UiBundle\DataTable\AdminDataTableConfig:
+        arguments:
+            $tenantEndpoint: '/api/organizations'
+            $tenantLabelKey: 'datatable.col.organization'
+            $tenantLabelDomain: 'messages'
