@@ -4,7 +4,7 @@
 
 <p align="center">
     <a href="https://opensource.org/licenses/MIT" target="_blank"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"></a>
-    <img src="https://img.shields.io/static/v1?label=stable&message=v1&color=orange" alt="Version">
+    <img src="https://img.shields.io/static/v1?label=stable&message=v2&color=orange" alt="Version">
 </p>
 
 Symfony UI bundle
