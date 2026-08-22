@@ -46,8 +46,8 @@ ui:
 Usage
 -----
 
-Fifteen form types, a Twig theme that renders them, and the base class behind a server-driven
-datatable. Extracted from an application that runs all of it.
+Fifteen form types and the Twig theme that renders them. Extracted from an application that runs
+all of it.
 
 ### Register the form theme — nothing renders without it
 
@@ -144,65 +144,19 @@ $builder->add('reference', InputGroupAddOnType::class, [
 ]);
 ```
 
-### Datatables
+> **Les datatables ont déménagé.** `AbstractDataTableConfigProvider` et `AdminDataTableConfig`
+> vivent désormais dans **`jul6art/datatable-bundle`** depuis la v2.0.0 de ce bundle. Elles
+> n'avaient de sens qu'au-dessus d'une collection API Platform, dont `ui-bundle` ne dépend pas —
+> et ce bundle-ci reste utile à une application qui n'expose aucune API. Le remplacement est un
+> changement de namespace :
+>
+> ```diff
+> -use Jul6Art\UiBundle\DataTable\AbstractDataTableConfigProvider;
+> +use Jul6Art\DatatableBundle\DataTable\AbstractDataTableConfigProvider;
+> ```
+>
+> La configuration passe de `ui.datatable.tenant_*` à `datatable.tenant.*`.
 
-```php
-final class WidgetDataTableConfigProvider extends AbstractDataTableConfigProvider
-{
-    public function getColumns(): array
-    {
-        return [
-            $this->column('id', 'datatable.col.id', responsivePriority: 1),
-            $this->column('name', 'widget.field.name', 'widget'),
-            $this->column('reference', 'widget.field.reference', 'widget', sortField: 'sortableReference'),
-            $this->readOnlyColumn('tags', 'widget.field.tags', 'widget', render: 'badges'),
-        ];
-    }
-
-    public function getFilters(): array
-    {
-        return [
-            $this->dateRangeFilter('issuedAt', 'issuedAt', 'widget.filter.issued', 'widget'),
-            $this->apiFilter('category', 'category', 'widget.filter.category', '/api/categories'),
-        ];
-    }
-}
-```
-
-Each helper returns a plain array, and the arrays are meant to be serialised to a front-end table.
-Three things stay in the project: the JSON endpoint the table reads, the JavaScript that draws it,
-and the API filters the `param` names point at.
-
-The reason to use the helpers rather than literal arrays is that every label goes through the
-translator. Hand-written arrays are how a table ends up with one translated header and one raw key
-— which no test catches, because a datatable configuration has no expected output.
-
-> ⚠️ **`dateRangeFilter`\'s `granularity` is not cosmetic.** `'date'` (the default) sends the civil
-> date as picked, for a `date_immutable` column. `'datetime'` converts it to a UTC instant, for a
-> `datetime` column. Getting it wrong shifts every result by one day for every user whose browser
-> is not on UTC — an invoice dated the 1st stops matching a range starting the 1st.
-
-### Cross-tenant listings
-
-```php
-$columns = $admin->decorateColumns($provider->getColumns());
-$filters = [...$provider->getFilters(), $admin->tenantFilter()];
-```
-
-`AdminDataTableConfig` inserts the tenant column — second, right after `id` — and its autocomplete
-filter, so a super-admin page reuses the *same* provider a tenant user sees instead of a parallel
-copy that drifts one column at a time.
-
-```yaml
-ui:
-    datatable:
-        tenant_endpoint: /api/organizations
-        tenant_label_key: datatable.col.organization
-```
-
-The endpoint must expose a search filter under `?search=` and return `id` and `name`. That is a
-real coupling, and it is why these are configuration rather than constants: a "tenant" is an
-`Organization` here and a `Workspace` elsewhere.
 
 Quality assurance
 -----------------

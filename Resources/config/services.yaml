@@ -19,11 +19,3 @@ services:
     # utilisables par leur FQCN sans que le projet déclare quoi que ce soit.
     Jul6Art\UiBundle\Form\Type\:
         resource: '../../Form/Type/'
-
-    # Le socle des fournisseurs de configuration de datatable est abstrait : il n'est pas un
-    # service, ce sont ses sous-classes côté projet qui en sont.
-    Jul6Art\UiBundle\DataTable\AdminDataTableConfig:
-        arguments:
-            $tenantEndpoint: '/api/organizations'
-            $tenantLabelKey: 'datatable.col.organization'
-            $tenantLabelDomain: 'messages'

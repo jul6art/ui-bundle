@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Jul6Art\UiBundle\DependencyInjection;
 
-use Jul6Art\UiBundle\DataTable\AdminDataTableConfig;
 use Jul6Art\UiBundle\Ui\IconSet;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -53,12 +52,6 @@ class UiExtension extends Extension
         $container->getDefinition(IconSet::class)
             ->setArgument('$icons', [...IconSet::FONT_AWESOME_ICONS, ...self::stringMap($config['icons'] ?? [])])
             ->setArgument('$currencyIcons', [...IconSet::FONT_AWESOME_CURRENCIES, ...self::stringMap($config['currency_icons'] ?? [])]);
-
-        $datatable = \is_array($config['datatable'] ?? null) ? $config['datatable'] : [];
-        $container->getDefinition(AdminDataTableConfig::class)
-            ->setArgument('$tenantEndpoint', self::asString($datatable['tenant_endpoint'] ?? null, '/api/organizations'))
-            ->setArgument('$tenantLabelKey', self::asString($datatable['tenant_label_key'] ?? null, 'datatable.col.organization'))
-            ->setArgument('$tenantLabelDomain', self::asString($datatable['tenant_label_domain'] ?? null, 'messages'));
     }
 
     /**
@@ -78,10 +71,5 @@ class UiExtension extends Extension
         }
 
         return $map;
-    }
-
-    private static function asString(mixed $value, string $fallback): string
-    {
-        return \is_string($value) && '' !== $value ? $value : $fallback;
     }
 }

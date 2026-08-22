@@ -11,7 +11,6 @@ return RectorConfig::configure()
     ->withPaths([
         __DIR__.'/UiBundle.php',
         __DIR__.'/DependencyInjection',
-        __DIR__.'/DataTable',
         __DIR__.'/Form',
         __DIR__.'/Ui',
         __DIR__.'/Tests',

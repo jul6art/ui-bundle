@@ -44,23 +44,6 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                     ->defaultValue(IconSet::FONT_AWESOME_CURRENCIES)
                 ->end()
-                ->arrayNode('datatable')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->scalarNode('tenant_endpoint')
-                            ->info('Collection endpoint the cross-tenant datatable filter searches against. Only used by AdminDataTableConfig.')
-                            ->defaultValue('/api/organizations')
-                        ->end()
-                        ->scalarNode('tenant_label_key')
-                            ->info('Translation key for the cross-tenant column header and filter placeholder.')
-                            ->defaultValue('datatable.col.organization')
-                        ->end()
-                        ->scalarNode('tenant_label_domain')
-                            ->info('Translation domain for tenant_label_key.')
-                            ->defaultValue('messages')
-                        ->end()
-                    ->end()
-                ->end()
             ->end();
 
         return $treeBuilder;

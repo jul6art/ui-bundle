@@ -6,7 +6,6 @@ parameters:
     paths:
         - UiBundle.php
         - DependencyInjection
-        - DataTable
         - Form
         - Ui
         - Tests

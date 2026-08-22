@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Jul6Art\UiBundle\Tests\Fixtures;
 
-use Jul6Art\UiBundle\DataTable\AdminDataTableConfig;
 use Jul6Art\UiBundle\Ui\IconSet;
 use Jul6Art\UiBundle\UiBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
@@ -112,7 +111,6 @@ final class TestKernel extends Kernel
                     'twig',
                     'form.factory',
                     IconSet::class,
-                    AdminDataTableConfig::class,
                 ];
 
                 foreach ($container->getDefinitions() as $id => $definition) {

@@ -35,12 +35,7 @@ final class ConfigurationTest extends TestCase
         $config = $this->process([]);
 
         self::assertTrue($config['enabled']);
-        self::assertSame([
-            'tenant_endpoint' => '/api/organizations',
-            'tenant_label_key' => 'datatable.col.organization',
-            'tenant_label_domain' => 'messages',
-        ], $config['datatable']);
-        self::assertSame(['enabled', 'icons', 'currency_icons', 'datatable'], array_keys($config));
+        self::assertSame(['enabled', 'icons', 'currency_icons'], array_keys($config));
     }
 
     /**
