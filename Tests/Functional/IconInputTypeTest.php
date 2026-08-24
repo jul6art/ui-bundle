@@ -133,4 +133,55 @@ final class IconInputTypeTest extends FormRenderingTestCase
         // La classe `relative w-full` n'existe que dans le bloc du bundle.
         self::assertStringContainsString('relative w-full', $this->render($type));
     }
+
+    /**
+     * Les add-ons se colorent dans le vocabulaire de la coquille — `slate`, pas `gray`.
+     *
+     * ⚠️ Ce n'est pas une préférence esthétique. Une application dont le contenu Tailwind ne
+     * scanne pas ce répertoire ne génère QUE les classes écrites ailleurs ; `gray` n'étant utilisé
+     * nulle part dans l'écosystème, `text-gray-400` était purgée et l'icône héritait de la couleur
+     * du texte — NOIRE en clair, blanche en sombre. Mesuré chez wovex le 2026-08-24 :
+     * `rgb(15, 23, 42)` pour une classe pourtant présente sur l'élément.
+     */
+    #[DataProvider('iconTypes')]
+    public function testAnAddOnUsesTheSlateVocabulary(string $type, string $side, string $glyph): void
+    {
+        $html = $this->render($type);
+
+        self::assertStringContainsString('text-slate-400', $html);
+        self::assertStringNotContainsString('text-gray-', $html, 'La palette `gray` n\'est utilisée nulle part dans cet écosystème.');
+    }
+
+    /**
+     * L'add-on est posé en `absolute` : il RECOUVRE le champ. Sans gouttière réservée sur
+     * l'`<input>`, le texte saisi passe dessous — mesuré chez wovex le 2026-08-24 : 8 px de
+     * chevauchement sur un champ e-mail (zone de texte jusqu'à 1043 px, icône à partir de 1035).
+     *
+     * La classe passe par `attr` et non par le balisage : la règle centrale des thèmes de cet
+     * écosystème veut qu'un `class=` écrit dans le bloc écrase celle que le projet a posée en
+     * option (`form-control`), et rende le champ invisible.
+     */
+    #[DataProvider('iconTypes')]
+    public function testTheInputReservesAGutterForItsAddOn(string $type, string $side, string $glyph): void
+    {
+        $html = $this->render($type);
+        $expected = 'left' === $side ? 'pl-10' : 'pr-10';
+
+        self::assertMatchesRegularExpression(
+            '/<input[^>]*class="[^"]*'.$expected.'/',
+            $html,
+            \sprintf('L\'`<input>` doit réserver %s pour son add-on %s.', $expected, $side),
+        );
+    }
+
+    /**
+     * Et pas de gouttière là où il n'y a pas d'add-on : un champ nu garde ses 12 px de padding.
+     */
+    public function testAFieldWithoutAnAddOnKeepsItsDefaultPadding(): void
+    {
+        $html = $this->render(CustomEmailType::class, bundleConfig: ['icons' => ['email' => '']]);
+
+        self::assertStringNotContainsString('pr-10', $html);
+        self::assertStringNotContainsString('pl-10', $html);
+    }
 }

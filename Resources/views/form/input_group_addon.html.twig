@@ -27,16 +27,33 @@
         {% set inputType = 'email' %}
     {% endif %}
 
+    {% set hasLeftAddon = left_addon is defined and left_addon is not empty %}
+    {% set hasRightAddon = right_addon is defined and right_addon is not empty %}
+
+    {#
+        ⚠️ La gouttière n'est pas décorative : un add-on est posé en `absolute`, donc il RECOUVRE
+        le champ. Sans elle, le texte saisi passe SOUS l'icône — mesuré chez wovex le 2026-08-24,
+        8 px de chevauchement sur un champ e-mail, sur trois écrans d'authentification.
+
+        Elle passe par `attr` et jamais par un `class=` écrit dans le balisage : c'est la règle
+        centrale des thèmes de cet écosystème. Un attribut de classe posé ici écraserait celle que
+        le projet passe en option (`form-control`), et le champ sortirait sans bordure ni fond —
+        blanc sur blanc, HTML parfaitement valide, rien en console.
+    #}
+    {% set attr = attr|merge({ class: (attr.class|default('')
+        ~ (hasLeftAddon ? ' pl-10' : '')
+        ~ (hasRightAddon ? ' pr-10' : ''))|trim }) %}
+
     <div class="relative w-full"{{ inputType == 'password' ? ' data-controller="form--password"' : '' }}>
 
-        {% if left_addon is defined and left_addon is not empty %}
+        {% if hasLeftAddon %}
             <div class="absolute inset-y-0 left-0 flex items-center pl-3">
                 {% if left_type == 'button' %}
-                    <button type="button" class="text-gray-500 hover:text-gray-700"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}>
+                    <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}>
                         {{ left_addon|raw }}
                     </button>
                 {% else %}
-                    <span class="text-gray-400">
+                    <span class="text-slate-400">
                         {{ left_addon|raw }}
                     </span>
                 {% endif %}
@@ -45,14 +62,14 @@
 
         <input type="{{ inputType }}" {{ block('widget_attributes') }} {% if form.vars.value is not empty %}value="{{ form.vars.value }}"{% endif %}/>
 
-        {% if right_addon is defined and right_addon is not empty %}
+        {% if hasRightAddon %}
             <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                 {% if right_type == 'button' %}
-                    <button type="button" class="text-gray-500 hover:text-gray-700"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}>
+                    <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}>
                         {{ right_addon|raw }}
                     </button>
                 {% else %}
-                    <span class="text-gray-400">
+                    <span class="text-slate-400">
                         {{ right_addon|raw }}
                     </span>
                 {% endif %}
