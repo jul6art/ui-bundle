@@ -17,6 +17,25 @@
     data (a currency code, a unit) are escaped in the form type, at the source, before they get
     here.
 #}
+{#
+    ⚠️ **La cible tactile de l'addon — mesurée à 360 px le 2026-09-05, elle faisait 20 × 24.**
+
+    Le bouton « afficher le mot de passe » est l'exemple : une icône de 20 px, sans rembourrage
+    propre, dans un parent qui la CENTRAIT (`flex items-center`) au lieu de la laisser s'étirer.
+    Un doigt vise 44 px ; on tapait à côté, et sur un formulaire d'inscription c'est la première
+    friction que rencontre un nouveau compte.
+
+    ⚠️ **Corrigé sans introduire le moindre utilitaire nouveau**, et c'est délibéré : ce bundle n'a
+    pas de feuille de style à lui, il dépend du Tailwind du CONSOMMATEUR, qui ne scanne pas ces
+    gabarits. C'est la leçon du commit `4f6a11c` d'`admin-bundle` — un correctif de cible tactile
+    qui reposait sur un utilitaire que les consommateurs ne génèrent pas, donc un correctif qui
+    n'existait que dans le dépôt.
+
+    Le parent perd `items-center` : un enfant de flex s'étire alors de lui-même sur toute la
+    hauteur (`align-items: stretch` est le défaut). Le rembourrage passe du parent au bouton, donc
+    l'icône ne bouge pas d'un pixel — seule la surface tapable grandit, de 20 × 24 à 44 × la hauteur
+    du champ.
+#}
 {% block input_group_addon_widget %}
     {% set inputType = 'text' %}
 
@@ -47,13 +66,13 @@
     <div class="relative w-full"{{ inputType == 'password' ? ' data-controller="form--password"' : '' }}>
 
         {% if hasLeftAddon %}
-            <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+            <div class="absolute inset-y-0 left-0 flex">
                 {% if left_type == 'button' %}
-                    <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}>
+                    <button type="button" class="flex items-center px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}>
                         {{ left_addon|raw }}
                     </button>
                 {% else %}
-                    <span class="text-slate-400">
+                    <span class="flex items-center px-3 text-slate-400">
                         {{ left_addon|raw }}
                     </span>
                 {% endif %}
@@ -63,13 +82,13 @@
         <input type="{{ inputType }}" {{ block('widget_attributes') }} {% if form.vars.value is not empty %}value="{{ form.vars.value }}"{% endif %}/>
 
         {% if hasRightAddon %}
-            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+            <div class="absolute inset-y-0 right-0 flex">
                 {% if right_type == 'button' %}
-                    <button type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}>
+                    <button type="button" class="flex items-center px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}>
                         {{ right_addon|raw }}
                     </button>
                 {% else %}
-                    <span class="text-slate-400">
+                    <span class="flex items-center px-3 text-slate-400">
                         {{ right_addon|raw }}
                     </span>
                 {% endif %}

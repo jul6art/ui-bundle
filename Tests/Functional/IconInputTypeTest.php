@@ -70,6 +70,52 @@ final class IconInputTypeTest extends FormRenderingTestCase
     }
 
     /**
+     * ⚠️ **La cible tactile de l'add-on : 44 px, et pas un utilitaire de plus.**
+     *
+     * Mesuré à 360 px sur un produit consommateur le 2026-09-05 : le bouton « afficher le mot de
+     * passe » rendait **20 × 24**. Une icône de 20 px sans rembourrage propre, dans un parent qui
+     * la CENTRAIT au lieu de la laisser s'étirer. Un doigt vise 44 ; sur un formulaire
+     * d'inscription, c'est la première friction que rencontre un nouveau compte.
+     *
+     * Deux propriétés, et chacune a déjà été perdue une fois dans la famille de bundles :
+     *
+     * 1. le parent ne porte **plus** `items-center` — un enfant de flex s'étire alors de lui-même
+     *    (`align-items: stretch` est le défaut), donc le bouton fait la hauteur du champ **sans
+     *    qu'aucune hauteur soit écrite** ;
+     * 2. le rembourrage est passé du parent au **bouton** : l'icône ne bouge pas d'un pixel, seule
+     *    la surface tapable grandit. Un correctif qui déplace l'icône est un correctif qu'on
+     *    annule à la première relecture visuelle.
+     *
+     * ⚠️ **Et rien de tout cela n'introduit un utilitaire nouveau.** Ce bundle n'a pas de feuille
+     * de style : il dépend du Tailwind du CONSOMMATEUR, qui ne scanne pas ces gabarits. C'est la
+     * leçon du commit `4f6a11c` d'`admin-bundle` — un correctif de cible tactile appuyé sur un
+     * utilitaire que les consommateurs ne génèrent pas, donc un correctif qui n'existait que dans
+     * le dépôt.
+     *
+     * @param class-string $type
+     */
+    #[DataProvider('iconTypes')]
+    public function testTheAddonCarriesATappableAreaWithoutMovingTheIcon(string $type, string $side, string $glyph): void
+    {
+        $html = $this->render($type);
+
+        self::assertStringContainsString(
+            'flex items-center px-3',
+            $html,
+            'L\'add-on doit porter son propre rembourrage et son propre centrage : sans eux, la '
+            .'zone tapable est celle de l\'icône — 20 × 24 mesurés.',
+        );
+
+        self::assertStringNotContainsString(
+            'flex items-center '.('left' === $side ? 'pl-3' : 'pr-3').'"',
+            $html,
+            'Le PARENT ne doit plus centrer ni rembourrer : c\'est `items-center` sur le parent qui '
+            .'empêchait le bouton de s\'étirer sur la hauteur du champ, et le rembourrage doit vivre '
+            .'là où vit la cible.',
+        );
+    }
+
+    /**
      * Le point de toute l'indirection : un projet sans Font Awesome remplace le balisage, et rien
      * dans le bundle n'a à changer.
      */
