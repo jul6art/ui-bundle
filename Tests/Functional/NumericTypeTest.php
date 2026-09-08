@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jul6Art\UiBundle\Tests\Functional;
 
+use Jul6Art\UiBundle\Form\Type\CustomCountType;
 use Jul6Art\UiBundle\Form\Type\CustomMoneyType;
 use Jul6Art\UiBundle\Form\Type\CustomUnitType;
 use PHPUnit\Framework\Attributes\CoversNothing;
@@ -12,6 +13,84 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversNothing]
 final class NumericTypeTest extends FormRenderingTestCase
 {
+    /**
+     * **Un ENTIER avec son unité — le type qui manquait.**
+     *
+     * ⚠️ `CustomUnitType` est parenté sur `NumberType` et soumet un FLOAT. Sur une propriété typée
+     * `?int` — un délai en heures, un intervalle en mois — cela donne un `TypeError` en mode
+     * strict : un 500 sur une saisie parfaitement ordinaire. Le contournement qu'on tente ensuite,
+     * `InputGroupAddOnType` directement, est parenté sur `TextType` et soumet une CHAÎNE, qui
+     * échoue pour la même raison. Un projet voulant « 12 h » dans la case avait donc trois
+     * possibilités, toutes fausses.
+     */
+    public function testAWholeNumberCarriesItsUnit(): void
+    {
+        $view = $this->view(CustomCountType::class, ['unit' => 'h']);
+
+        self::assertSame('h', $view->vars['right_addon']);
+        self::assertSame('text', $view->vars['right_type']);
+        self::assertFalse($view->vars['right_clickable']);
+    }
+
+    /**
+     * ⚠️ **C'est la raison d'être du type** : parenté sur `IntegerType`, donc une valeur soumise
+     * arrive en `int`. Un `float` ici, et chaque mutateur `?int` du produit lèverait.
+     */
+    public function testAWholeNumberSubmitsAnInteger(): void
+    {
+        $container = $this->boot();
+        $factory = $container->get('form.factory');
+        self::assertInstanceOf(\Symfony\Component\Form\FormFactoryInterface::class, $factory);
+
+        $form = $factory->createBuilder(CustomCountType::class, null, ['unit' => 'h'])->getForm();
+        $form->submit('12');
+
+        self::assertTrue($form->isValid());
+        self::assertSame(12, $form->getData());
+    }
+
+    /**
+     * ⚠️ Une unité vide ne rend AUCUN add-on, plutôt qu'une case vide : un champ dont l'unité n'est
+     * connue qu'à l'exécution dégrade en simple champ numérique au lieu d'afficher une décoration
+     * orpheline. Même règle que `CustomUnitType`.
+     */
+    public function testAnEmptyUnitOnAWholeNumberRendersNoAddOn(): void
+    {
+        $view = $this->view(CustomCountType::class);
+
+        self::assertNull($view->vars['right_addon']);
+        self::assertStringNotContainsString('right-0', $this->render(CustomCountType::class));
+    }
+
+    /**
+     * ⚠️ Une unité vient d'une donnée métier, pas d'un jeu d'icônes : elle est échappée À LA
+     * SOURCE, comme le code ISO d'une devise inconnue.
+     */
+    public function testAWholeNumberUnitIsEscapedAtTheSource(): void
+    {
+        $view = $this->view(CustomCountType::class, ['unit' => '"><script>']);
+
+        self::assertSame('&quot;&gt;&lt;script&gt;', $view->vars['right_addon']);
+    }
+
+    /**
+     * ⚠️ **PAS de contrôleur décimal**, contrairement à ses deux frères : il formate une échelle, et
+     * un entier n'en a pas. L'attacher poserait une échelle de zéro sur un champ qui ne peut de
+     * toute façon pas montrer de décimale — une déclaration qui ne dit rien et qu'un lecteur croit.
+     */
+    public function testAWholeNumberGetsNoDecimalController(): void
+    {
+        $view = $this->view(CustomCountType::class, ['unit' => 'h']);
+
+        $attr = $view->vars['attr'];
+        self::assertIsArray($attr);
+
+        $controller = $attr['data-controller'] ?? '';
+        self::assertIsString($controller);
+        self::assertStringNotContainsString('form--decimal', $controller);
+        self::assertArrayNotHasKey('data-form--decimal-decimals-value', $attr);
+    }
+
     public function testAKnownCurrencyRendersItsSymbol(): void
     {
         $html = $this->render(CustomMoneyType::class, ['currency' => 'EUR']);

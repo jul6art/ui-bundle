@@ -110,7 +110,8 @@ The available names: `address`, `city`, `email`, `key`, `license_plate`, `passwo
 ```php
 $builder
     ->add('total', CustomMoneyType::class, ['currency' => 'CHF', 'scale' => 2])
-    ->add('duration', CustomUnitType::class, ['unit' => 'h']);
+    ->add('duration', CustomUnitType::class, ['unit' => 'h'])
+    ->add('responseTimeHours', CustomCountType::class, ['unit' => 'h']);
 ```
 
 `CustomMoneyType` builds on `NumberType`, not Symfony's `MoneyType`: `MoneyType` divides by 100 and
@@ -124,7 +125,18 @@ Add symbols with `ui.currency_icons`, keyed by ISO code.
 `CustomUnitType` with an empty `unit` renders no add-on at all, so a field whose unit comes from
 data degrades to a plain number input rather than an empty box.
 
-> ⚠️ **Both types attach a `form--decimal` Stimulus controller that this bundle does not ship.**
+**`CustomCountType` is the WHOLE-NUMBER one**, and it exists because the other two cannot do the
+job. `CustomUnitType` is parented on `NumberType` and submits a **float**: on a property typed
+`?int` — an SLA in hours, a service interval in months — that hands a float to an int setter and
+raises a `TypeError` in strict mode, which is a 500 on a perfectly ordinary entry. The workaround
+people reach for next, `InputGroupAddOnType` directly, is parented on `TextType` and submits a
+**string**, which fails the same way for the same reason. So "12 h" in the box had three options and
+all three were wrong.
+
+It attaches **no** decimal controller: that controller formats a scale, and a whole number has
+none — `IntegerType` already sets `inputmode="numeric"` for the keypad.
+
+> ⚠️ **The two DECIMAL types attach a `form--decimal` Stimulus controller that this bundle does not ship.**
 > Exposing Stimulus controllers would mean choosing AssetMapper or Encore for every consumer. Write
 > the controller in the project — thousands separator, decimal comma, keystroke filtering — reading
 > `data-form--decimal-decimals-value`. Without it the field is a plain, unformatted number input,
