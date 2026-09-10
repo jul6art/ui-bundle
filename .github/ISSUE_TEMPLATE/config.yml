@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/jul6art/ui-bundle/security/advisories/new
+    about: Cross-site scripting through the form theme, a raw-markup escape hatch wider than documented. Reported privately, never as an issue.
+  - name: How to contribute
+    url: https://github.com/jul6art/ui-bundle/blob/master/.github/CONTRIBUTING.md
+    about: The quality gate (composer qa), what the CI adds on top of it, and the house rules.
+  - name: Documentation
+    url: https://github.com/jul6art/ui-bundle#readme
+    about: Configuration, contracts, and the traps already paid for.
