@@ -9,12 +9,13 @@ use Jul6Art\UiBundle\Form\Type\CustomMoneyType;
 use Jul6Art\UiBundle\Form\Type\CustomUnitType;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Form\FormFactoryInterface;
 
 #[CoversNothing]
 final class NumericTypeTest extends FormRenderingTestCase
 {
     /**
-     * **Un ENTIER avec son unité — le type qui manquait.**
+     * **Un ENTIER avec son unité — le type qui manquait.**.
      *
      * ⚠️ `CustomUnitType` est parenté sur `NumberType` et soumet un FLOAT. Sur une propriété typée
      * `?int` — un délai en heures, un intervalle en mois — cela donne un `TypeError` en mode
@@ -40,7 +41,7 @@ final class NumericTypeTest extends FormRenderingTestCase
     {
         $container = $this->boot();
         $factory = $container->get('form.factory');
-        self::assertInstanceOf(\Symfony\Component\Form\FormFactoryInterface::class, $factory);
+        self::assertInstanceOf(FormFactoryInterface::class, $factory);
 
         $form = $factory->createBuilder(CustomCountType::class, null, ['unit' => 'h'])->getForm();
         $form->submit('12');

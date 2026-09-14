@@ -146,6 +146,23 @@ none — `IntegerType` already sets `inputmode="numeric"` for the keypad.
 > The attachment appends to `data-controller` rather than replacing it, so a field that already
 > carries a project controller keeps it.
 
+### A tabular import upload
+
+```php
+$builder->add('file', TabularFileType::class);
+```
+
+`TabularFileType` is a plain `FileType` with an `accept=".csv,.xlsx"` hint on the picker — nothing
+more. It carries **no `mimeTypes` constraint**: a browser sends `application/vnd.ms-excel` for a
+real binary `.xls` *and* for a `.csv` saved out of Excel, so a MIME allow list strict enough to
+admit the second admits the first too. `jul6art/dataflow-bundle` settled this by reading the
+file's own bytes once it reaches the server (`SpreadsheetSignature`, and each reader's
+`supports()`); a constraint here would be a second, weaker gate that disagrees with that one on
+the exact files that matter. The `accept` attribute is a convenience for the file picker, not a
+security boundary — validate by content, downstream, as that bundle does.
+
+An explicit `accept` (or any other `attr`) passed to the field is kept and takes precedence.
+
 ### A field with an add-on of your own
 
 ```php

@@ -70,7 +70,7 @@ final class IconInputTypeTest extends FormRenderingTestCase
     }
 
     /**
-     * ⚠️ **La cible tactile de l'add-on : 44 px, et pas un utilitaire de plus.**
+     * ⚠️ **La cible tactile de l'add-on : 44 px, et pas un utilitaire de plus.**.
      *
      * Mesuré à 360 px sur un produit consommateur le 2026-09-05 : le bouton « afficher le mot de
      * passe » rendait **20 × 24**. Une icône de 20 px sans rembourrage propre, dans un parent qui
