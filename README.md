@@ -163,6 +163,36 @@ security boundary — validate by content, downstream, as that bundle does.
 
 An explicit `accept` (or any other `attr`) passed to the field is kept and takes precedence.
 
+### An entity picker searched through the API
+
+```php
+$builder->add('technician', AutocompleteEntityType::class, [
+    'class' => User::class,
+    'choice_label' => 'fullName',
+    'autocomplete_url' => '/api/users?roles=ROLE_TECHNICIAN&isActive=true',
+    'text_key' => 'fullName',                 // the API field shown in the results (default: name)
+    'query_builder' => static fn (UserRepository $r) => $r->activeTechniciansQuery(),
+    // 'search_key' => 'search',              // the term's query key (default: search)
+    // 'secondary_key' => 'sku',              // appended in parentheses to each result
+    // 'depends_on' => '#work_order_customer', 'depends_param' => 'customer',
+]);
+```
+
+The page carries the **current value and nothing else**; the list comes from the API as the user
+types, through the Select2 controller of `jul6art/datatable-bundle` (`ui--select2`). A plain
+`EntityType` with a Select2 URL only looks lazy: Symfony still loads and writes every row the
+query builder allows — 801 options on one picker, growing with the data.
+
+> ⚠️ **The `query_builder` still decides what may be posted.** It no longer lists, but the posted
+> id is resolved THROUGH it (`BoundedLazyChoiceLoader`, an `IN (:ids)` added to that query): a row
+> that exists but that the query excludes — an inactive account, another customer's site — is
+> refused exactly as before. A bare `findBy(['id' => $ids])` would accept it. Keep the URL and the
+> query builder saying the same thing: a URL wider than the query offers rows the form refuses.
+
+`placeholder` defaults to `''`: that empty option is what the Select2 clear button restores
+(datatable-bundle ≥ 2.4.4 offers no button without one). Requires `doctrine/orm` and an entity with
+a single identifier.
+
 ### A field with an add-on of your own
 
 ```php
