@@ -19,6 +19,7 @@ use Jul6Art\UiBundle\Form\Type\CustomZipCodeType;
 use Jul6Art\UiBundle\Form\Type\InputGroupAddOnType;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Form\FormFactoryInterface;
 
 #[CoversNothing]
 final class IconInputTypeTest extends FormRenderingTestCase
@@ -159,6 +160,41 @@ final class IconInputTypeTest extends FormRenderingTestCase
     /**
      * `InputGroupAddOnType` est utilisable directement, avec du balisage fourni par l'appelant.
      */
+    /**
+     * The URL field keeps prepending `http://` to an address typed without a scheme.
+     *
+     * ⚠️ Symfony 7.1 deprecates leaving `default_protocol` unset on `UrlType`, and 8.0 turns its
+     * default to `null` — no scheme prepended. Left implicit, the behaviour this type documents would
+     * change on the day of the upgrade, with nothing to say so: `example.com` would be stored as is.
+     */
+    public function testAnAddressWithoutASchemeGetsOne(): void
+    {
+        $container = $this->boot();
+        $factory = $container->get('form.factory');
+        self::assertInstanceOf(FormFactoryInterface::class, $factory);
+
+        // The deprecation is raised while the options resolve, by a closure of `UrlType` — the only
+        // way to see it is to listen while the field is built.
+        $deprecations = [];
+        set_error_handler(static function (int $level, string $message) use (&$deprecations): bool {
+            $deprecations[] = $message;
+
+            return true;
+        }, \E_USER_DEPRECATED);
+
+        try {
+            $form = $factory->create(CustomUrlType::class);
+        } finally {
+            restore_error_handler();
+        }
+
+        $form->submit('example.com');
+
+        self::assertSame([], $deprecations);
+        self::assertSame('http://example.com', $form->getData());
+        self::assertSame('http', $form->getConfig()->getOption('default_protocol'));
+    }
+
     public function testTheBaseTypeAcceptsAnExplicitAddOn(): void
     {
         $html = $this->render(InputGroupAddOnType::class, [
