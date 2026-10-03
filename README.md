@@ -175,6 +175,7 @@ $builder->add('technician', AutocompleteEntityType::class, [
     // 'search_key' => 'search',              // the term's query key (default: search)
     // 'secondary_key' => 'sku',              // appended in parentheses to each result
     // 'depends_on' => '#work_order_customer', 'depends_param' => 'customer',
+    // 'order_key' => 'lastName',             // the sort key (default: text_key; 'none' = no order)
 ]);
 ```
 
@@ -188,6 +189,11 @@ query builder allows — 801 options on one picker, growing with the data.
 > that exists but that the query excludes — an inactive account, another customer's site — is
 > refused exactly as before. A bare `findBy(['id' => $ids])` would accept it. Keep the URL and the
 > query builder saying the same thing: a URL wider than the query offers rows the form refuses.
+
+The suggestions come back in **ascending order on `text_key`** (datatable-bundle ≥ 2.7 asks for
+`order[<key>]=asc`). Name another key with `order_key` when the displayed one is computed and the
+resource cannot sort on it, or `'none'` to keep the server's order. ⚠️ API Platform silently ignores
+an order on a property the resource does not expose: the sort key must be declared there.
 
 `placeholder` defaults to `''`: that empty option is what the Select2 clear button restores
 (datatable-bundle ≥ 2.4.4 offers no button without one). Requires `doctrine/orm` and an entity with

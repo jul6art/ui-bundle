@@ -74,6 +74,9 @@ final class AutocompleteEntityType extends AbstractType
             'secondary_key' => null,
             'depends_on' => null,
             'depends_param' => null,
+            // The key the suggestions are sorted on. `null` lets the Select2 controller sort on the
+            // displayed `text_key` (datatable-bundle ≥ 2.7); `'none'` sends no order.
+            'order_key' => null,
             'placeholder' => '',
             'choice_loader' => static function (Options $options): BoundedLazyChoiceLoader {
                 $idReader = $options['id_reader'];
@@ -100,6 +103,7 @@ final class AutocompleteEntityType extends AbstractType
         $resolver->setAllowedTypes('secondary_key', ['null', 'string']);
         $resolver->setAllowedTypes('depends_on', ['null', 'string']);
         $resolver->setAllowedTypes('depends_param', ['null', 'string']);
+        $resolver->setAllowedTypes('order_key', ['null', 'string']);
     }
 
     /**
@@ -121,6 +125,7 @@ final class AutocompleteEntityType extends AbstractType
             'data-ui--select2-secondary-key-value' => $options['secondary_key'],
             'data-ui--select2-depends-on-value' => $options['depends_on'],
             'data-ui--select2-depends-param-value' => $options['depends_param'],
+            'data-ui--select2-order-key-value' => $options['order_key'],
         ], static fn (mixed $value): bool => null !== $value), $attr);
 
         $idReader = $options['id_reader'];

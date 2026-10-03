@@ -143,6 +143,17 @@ final class AutocompleteEntityTypeTest extends TestCase
     }
 
     /**
+     * The suggestions are sorted on the displayed key by the Select2 controller itself
+     * (datatable-bundle ≥ 2.7): no attribute by default, the explicit key — or `'none'` — when given.
+     */
+    public function testTheOrderKeyIsPassedOnlyWhenNamed(): void
+    {
+        self::assertArrayNotHasKey('data-ui--select2-order-key-value', self::attrOf($this->form()));
+        self::assertSame('serialNumber', self::attrOf($this->form(options: ['order_key' => 'serialNumber']))['data-ui--select2-order-key-value']);
+        self::assertSame('none', self::attrOf($this->form(options: ['order_key' => 'none']))['data-ui--select2-order-key-value']);
+    }
+
+    /**
      * The empty option is what the Select2 clear button restores; without it the button has nothing
      * to go back to.
      */
