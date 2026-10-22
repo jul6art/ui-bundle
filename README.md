@@ -206,8 +206,14 @@ $builder->add('reference', InputGroupAddOnType::class, [
     'right_addon' => '<i class="fa-solid fa-hashtag"></i>',
     'right_type'  => 'button',    // icon | button | text — only `button` is focusable
     'right_clickable' => true,
+    'right_label' => 'reference.copy', // the button's name: a translation key or a TranslatableInterface
 ]);
 ```
+
+A `button` add-on is an icon alone: `left_label` / `right_label` give it the name assistive technology
+reads (2.4.2 — without one, axe reports `button-name`, critical). The password reveal button names
+itself — « Show or hide the password » — from the bundle's own `UiBundle` catalogue (English and
+French shipped); a project overrides `password.reveal` in its own `UiBundle` catalogue.
 
 > **Les datatables ont déménagé.** `AbstractDataTableConfigProvider` et `AdminDataTableConfig`
 > vivent désormais dans **`jul6art/datatable-bundle`** depuis la v2.0.0 de ce bundle. Elles

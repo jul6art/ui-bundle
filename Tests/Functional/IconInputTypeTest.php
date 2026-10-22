@@ -158,6 +158,24 @@ final class IconInputTypeTest extends FormRenderingTestCase
     }
 
     /**
+     * The reveal button is an icon alone: it names itself, in the bundle's own `UiBundle` catalogue —
+     * no key for the project to add (axe `button-name`, critical, seen on every password form). A
+     * button add-on of the base type takes its name from `right_label`.
+     */
+    public function testAButtonAddOnNamesItself(): void
+    {
+        self::assertStringContainsString('aria-label="Show or hide the password"', $this->render(CustomPasswordType::class));
+
+        $html = $this->render(InputGroupAddOnType::class, [
+            'right_addon' => '<i class="fa-solid fa-copy"></i>',
+            'right_type' => 'button',
+            'right_label' => 'Copy',
+        ]);
+        self::assertStringContainsString('aria-label="Copy"', $html);
+        self::assertStringNotContainsString('aria-label', $this->render(CustomEmailType::class), 'An icon add-on is no button: nothing to name.');
+    }
+
+    /**
      * `InputGroupAddOnType` est utilisable directement, avec du balisage fourni par l'appelant.
      */
     /**

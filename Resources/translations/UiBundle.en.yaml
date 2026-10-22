@@ -1,0 +1,3 @@
+# The labels ui-bundle renders itself — a project overrides them in its own `UiBundle` catalogue.
+password:
+    reveal: 'Show or hide the password'

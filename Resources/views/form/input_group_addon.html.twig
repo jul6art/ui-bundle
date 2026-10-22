@@ -49,6 +49,12 @@
     {% set hasLeftAddon = left_addon is defined and left_addon is not empty %}
     {% set hasRightAddon = right_addon is defined and right_addon is not empty %}
 
+    {# The name of a `button` add-on — an icon alone has none (axe `button-name`, critical): the
+       `*_label` option, or for the password reveal button its own, shipped by this bundle. #}
+    {% set revealLabel = inputType == 'password' ? 'password.reveal'|trans({}, 'UiBundle') : null %}
+    {% set leftLabel = left_label is defined and left_label is not null ? left_label|trans : revealLabel %}
+    {% set rightLabel = right_label is defined and right_label is not null ? right_label|trans : revealLabel %}
+
     {#
         ⚠️ La gouttière n'est pas décorative : un add-on est posé en `absolute`, donc il RECOUVRE
         le champ. Sans elle, le texte saisi passe SOUS l'icône — mesuré chez wovex le 2026-08-24,
@@ -68,7 +74,7 @@
         {% if hasLeftAddon %}
             <div class="absolute inset-y-0 left-0 flex">
                 {% if left_type == 'button' %}
-                    <button type="button" class="flex items-center px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}>
+                    <button type="button" class="flex items-center px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}{% if leftLabel %} aria-label="{{ leftLabel }}"{% endif %}>
                         {{ left_addon|raw }}
                     </button>
                 {% else %}
@@ -84,7 +90,7 @@
         {% if hasRightAddon %}
             <div class="absolute inset-y-0 right-0 flex">
                 {% if right_type == 'button' %}
-                    <button type="button" class="flex items-center px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}>
+                    <button type="button" class="flex items-center px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"{{ inputType == 'password' ? ' data-form--password-toggle="toggle" data-action="form--password#toggle" tabindex="-1"' : '' }}{% if rightLabel %} aria-label="{{ rightLabel }}"{% endif %}>
                         {{ right_addon|raw }}
                     </button>
                 {% else %}

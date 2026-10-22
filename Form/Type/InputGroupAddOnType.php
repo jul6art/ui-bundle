@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
  * A text input with an add-on pinned inside it, left or right — an icon, a button or a short label.
@@ -64,8 +65,17 @@ class InputGroupAddOnType extends AbstractType
             'left_clickable' => false,
             'right_clickable' => false,
 
+            // The name a `button` add-on gives assistive technology — an icon alone has none (axe
+            // `button-name`, critical). A translation key or a TranslatableInterface, translated in
+            // the template; the password reveal button has its own, shipped in the `UiBundle` domain.
+            'left_label' => null,
+            'right_label' => null,
+
             'type' => TextType::class,
         ]);
+
+        $resolver->setAllowedTypes('left_label', ['null', 'string', TranslatableInterface::class]);
+        $resolver->setAllowedTypes('right_label', ['null', 'string', TranslatableInterface::class]);
     }
 
     /**
@@ -97,5 +107,8 @@ class InputGroupAddOnType extends AbstractType
 
         $view->vars['left_clickable'] = $options['left_clickable'] ?? null;
         $view->vars['right_clickable'] = $options['right_clickable'] ?? null;
+
+        $view->vars['left_label'] = $options['left_label'] ?? null;
+        $view->vars['right_label'] = $options['right_label'] ?? null;
     }
 }
