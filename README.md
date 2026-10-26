@@ -199,6 +199,27 @@ an order on a property the resource does not expose: the sort key must be declar
 (datatable-bundle ≥ 2.4.4 offers no button without one). Requires `doctrine/orm` and an entity with
 a single identifier.
 
+### Every list of choices is a Select2 (2.5)
+
+No native `<select>` reaches the screen: every `ChoiceType` rendered as a list — `EntityType`,
+`EnumType`, `CountryType` and the others inherit from it — receives the application's Select2
+controller, without a field having to remember it.
+
+```yaml
+# config/packages/ui.yaml — the default, nothing to write
+ui:
+    select2_identifier: 'ui--select2'   # the controller re-exported from datatable-bundle; '' = native selects
+```
+
+- The « clear » button is offered on an **optional** field only (`data-ui--select2-allow-clear-value`);
+  a field that sets it itself keeps its value.
+- A controller the field already declares (`attr: {'data-controller': …}`) is kept, Select2 is
+  appended.
+- Expanded choices (checkboxes, radios) are left alone: they are not a `<select>`.
+
+A `<select>` written by hand in a template is the template's business: put
+`data-controller="ui--select2"` on it.
+
 ### A field with an add-on of your own
 
 ```php

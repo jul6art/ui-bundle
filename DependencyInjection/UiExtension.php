@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Jul6Art\UiBundle\DependencyInjection;
 
+use Jul6Art\UiBundle\Form\Extension\Select2ChoiceExtension;
 use Jul6Art\UiBundle\Ui\IconSet;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 /**
  * Wires the bundle's services and turns its configuration into something the services can read.
@@ -52,6 +54,15 @@ class UiExtension extends Extension
         $container->getDefinition(IconSet::class)
             ->setArgument('$icons', [...IconSet::FONT_AWESOME_ICONS, ...self::stringMap($config['icons'] ?? [])])
             ->setArgument('$currencyIcons', [...IconSet::FONT_AWESOME_CURRENCIES, ...self::stringMap($config['currency_icons'] ?? [])]);
+
+        // Select2 on every list of choices, unless the application opted out with an empty
+        // identifier: then no extension at all, rather than one that does nothing on each form.
+        $select2 = $config['select2_identifier'] ?? 'ui--select2';
+        if (\is_string($select2) && '' !== $select2) {
+            $container->register(Select2ChoiceExtension::class)
+                ->setArgument('$identifier', $select2)
+                ->addTag('form.type_extension', ['extended_type' => ChoiceType::class]);
+        }
     }
 
     /**

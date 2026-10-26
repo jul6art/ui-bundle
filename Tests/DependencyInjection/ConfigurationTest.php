@@ -35,7 +35,8 @@ final class ConfigurationTest extends TestCase
         $config = $this->process([]);
 
         self::assertTrue($config['enabled']);
-        self::assertSame(['enabled', 'icons', 'currency_icons'], array_keys($config));
+        self::assertSame('ui--select2', $config['select2_identifier'], 'The identifier the applications of this ecosystem register.');
+        self::assertSame(['enabled', 'select2_identifier', 'icons', 'currency_icons'], array_keys($config));
     }
 
     /**
