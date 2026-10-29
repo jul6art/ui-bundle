@@ -20,6 +20,7 @@ use Jul6Art\UiBundle\Form\Type\InputGroupAddOnType;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormTypeInterface;
 
 #[CoversNothing]
 final class IconInputTypeTest extends FormRenderingTestCase
@@ -28,7 +29,7 @@ final class IconInputTypeTest extends FormRenderingTestCase
      * Chaque type demande une icône *logique* et la reçoit résolue. Le test porte sur le rendu et
      * non sur `view.vars` : c'est le seul niveau où l'on constate que le thème est bien branché.
      *
-     * @return iterable<string, array{class-string, string, string}>
+     * @return iterable<string, array{class-string<FormTypeInterface<mixed>>, string, string}>
      */
     public static function iconTypes(): iterable
     {
@@ -47,7 +48,7 @@ final class IconInputTypeTest extends FormRenderingTestCase
     }
 
     /**
-     * @param class-string $type
+     * @param class-string<FormTypeInterface<mixed>> $type
      */
     #[DataProvider('iconTypes')]
     public function testTheDefaultSetRendersFontAwesomeMarkup(string $type, string $side, string $glyph): void
@@ -59,7 +60,7 @@ final class IconInputTypeTest extends FormRenderingTestCase
     }
 
     /**
-     * @param class-string $type
+     * @param class-string<FormTypeInterface<mixed>> $type
      */
     #[DataProvider('iconTypes')]
     public function testAnAddOnIsOnTheDeclaredSide(string $type, string $side, string $glyph): void
@@ -93,7 +94,7 @@ final class IconInputTypeTest extends FormRenderingTestCase
      * utilitaire que les consommateurs ne génèrent pas, donc un correctif qui n'existait que dans
      * le dépôt.
      *
-     * @param class-string $type
+     * @param class-string<FormTypeInterface<mixed>> $type
      */
     #[DataProvider('iconTypes')]
     public function testTheAddonCarriesATappableAreaWithoutMovingTheIcon(string $type, string $side, string $glyph): void
@@ -223,9 +224,10 @@ final class IconInputTypeTest extends FormRenderingTestCase
     }
 
     /**
-     * Tous les types partagent le préfixe de bloc `input_group_addon`, et c'est lui qui les route
-     * vers le gabarit du bundle. Le changer casserait les douze d'un coup, silencieusement — le
-     * champ rendrait le widget par défaut de Symfony sans rien signaler.
+     * @param class-string<FormTypeInterface<mixed>> $type
+     *                                                     Tous les types partagent le préfixe de bloc `input_group_addon`, et c'est lui qui les route
+     *                                                     vers le gabarit du bundle. Le changer casserait les douze d'un coup, silencieusement — le
+     *                                                     champ rendrait le widget par défaut de Symfony sans rien signaler.
      */
     #[DataProvider('iconTypes')]
     public function testEveryTypeRoutesToTheBundleBlock(string $type, string $side, string $glyph): void
@@ -235,7 +237,8 @@ final class IconInputTypeTest extends FormRenderingTestCase
     }
 
     /**
-     * Les add-ons se colorent dans le vocabulaire de la coquille — `slate`, pas `gray`.
+     * @param class-string<FormTypeInterface<mixed>> $type
+     *                                                     Les add-ons se colorent dans le vocabulaire de la coquille — `slate`, pas `gray`.
      *
      * ⚠️ Ce n'est pas une préférence esthétique. Une application dont le contenu Tailwind ne
      * scanne pas ce répertoire ne génère QUE les classes écrites ailleurs ; `gray` n'étant utilisé
@@ -253,9 +256,10 @@ final class IconInputTypeTest extends FormRenderingTestCase
     }
 
     /**
-     * L'add-on est posé en `absolute` : il RECOUVRE le champ. Sans gouttière réservée sur
-     * l'`<input>`, le texte saisi passe dessous — mesuré chez wovex le 2026-08-24 : 8 px de
-     * chevauchement sur un champ e-mail (zone de texte jusqu'à 1043 px, icône à partir de 1035).
+     * @param class-string<FormTypeInterface<mixed>> $type
+     *                                                     L'add-on est posé en `absolute` : il RECOUVRE le champ. Sans gouttière réservée sur
+     *                                                     l'`<input>`, le texte saisi passe dessous — mesuré chez wovex le 2026-08-24 : 8 px de
+     *                                                     chevauchement sur un champ e-mail (zone de texte jusqu'à 1043 px, icône à partir de 1035).
      *
      * La classe passe par `attr` et non par le balisage : la règle centrale des thèmes de cet
      * écosystème veut qu'un `class=` écrit dans le bloc écrase celle que le projet a posée en

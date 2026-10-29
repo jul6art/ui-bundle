@@ -10,6 +10,7 @@ use Jul6Art\UiBundle\Form\Type\CustomUnitType;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormTypeInterface;
 
 #[CoversNothing]
 final class NumericTypeTest extends FormRenderingTestCase
@@ -144,7 +145,7 @@ final class NumericTypeTest extends FormRenderingTestCase
     }
 
     /**
-     * @return iterable<string, array{class-string}>
+     * @return iterable<string, array{class-string<FormTypeInterface<mixed>>}>
      */
     public static function decimalTypes(): iterable
     {
@@ -152,6 +153,9 @@ final class NumericTypeTest extends FormRenderingTestCase
         yield 'unit' => [CustomUnitType::class];
     }
 
+    /**
+     * @param class-string<FormTypeInterface<mixed>> $type
+     */
     #[DataProvider('decimalTypes')]
     public function testTheDecimalControllerIsAttachedWithTheScale(string $type): void
     {
@@ -164,8 +168,9 @@ final class NumericTypeTest extends FormRenderingTestCase
     }
 
     /**
-     * `data-controller` est une liste : l'écraser ferait disparaître le comportement que le projet
-     * avait posé sur le champ, sans erreur et sans trace.
+     * @param class-string<FormTypeInterface<mixed>> $type
+     *                                                     `data-controller` est une liste : l'écraser ferait disparaître le comportement que le projet
+     *                                                     avait posé sur le champ, sans erreur et sans trace
      */
     #[DataProvider('decimalTypes')]
     public function testAnExistingControllerIsKeptRatherThanReplaced(string $type): void
@@ -177,6 +182,9 @@ final class NumericTypeTest extends FormRenderingTestCase
         self::assertSame('projet--truc form--decimal', $attr['data-controller']);
     }
 
+    /**
+     * @param class-string<FormTypeInterface<mixed>> $type
+     */
     #[DataProvider('decimalTypes')]
     public function testTheControllerIsNotAttachedTwice(string $type): void
     {
@@ -188,10 +196,11 @@ final class NumericTypeTest extends FormRenderingTestCase
     }
 
     /**
-     * `inputmode` appartient à `NumberType`, pas à ce bundle : il l'écrit après nous, et le choisit
-     * selon `scale` (`numeric` à zéro décimale, `decimal` sinon). Ce test fige ce partage — si un
-     * jour ce bundle se met à poser l'attribut, il sera silencieusement écrasé, et ce test dira où
-     * regarder.
+     * @param class-string<FormTypeInterface<mixed>> $type
+     *                                                     `inputmode` appartient à `NumberType`, pas à ce bundle : il l'écrit après nous, et le choisit
+     *                                                     selon `scale` (`numeric` à zéro décimale, `decimal` sinon). Ce test fige ce partage — si un
+     *                                                     jour ce bundle se met à poser l'attribut, il sera silencieusement écrasé, et ce test dira où
+     *                                                     regarder.
      */
     #[DataProvider('decimalTypes')]
     public function testTheInputModeIsLeftToTheParentType(string $type): void

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jul6Art\UiBundle\Tests\Functional;
 
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\Form\FormView;
 use Twig\Environment;
 
@@ -20,8 +21,9 @@ use Twig\Environment;
 abstract class FormRenderingTestCase extends AbstractFunctionalTestCase
 {
     /**
-     * @param array<string, mixed> $options
-     * @param array<string, mixed> $bundleConfig
+     * @param class-string<FormTypeInterface<mixed>> $type
+     * @param array<string, mixed>                   $options
+     * @param array<string, mixed>                   $bundleConfig
      */
     final protected function view(string $type, array $options = [], array $bundleConfig = []): FormView
     {
@@ -34,8 +36,9 @@ abstract class FormRenderingTestCase extends AbstractFunctionalTestCase
     }
 
     /**
-     * @param array<string, mixed> $options
-     * @param array<string, mixed> $bundleConfig
+     * @param class-string<FormTypeInterface<mixed>> $type
+     * @param array<string, mixed>                   $options
+     * @param array<string, mixed>                   $bundleConfig
      */
     final protected function render(string $type, array $options = [], array $bundleConfig = []): string
     {
